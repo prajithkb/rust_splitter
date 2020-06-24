@@ -1,22 +1,23 @@
  
-/// Tokenizes the given input string and returns token at the given index
-pub fn tokenize(input: &String, delimiter: &String, index: usize) -> Option<String> {
+//! Module responsible for tokenizing the input line
+
+/// Tokenizes the given input string based on the delimiter and returns token at the given index
+pub fn tokenize<'a>(input: &'a str, delimiter: &str, index: usize) -> Option<&'a str> {
     let split = input.trim().split(delimiter);
-    let tokens: Vec<String> = split
-        .map(|x| x.to_string())
+    let tokens: Vec<&str> = split
         .filter(|x| !x.is_empty())
         .collect();
     if index > tokens.len() {
-        return None;
-    }
-    return Some(tokens[index - 1].clone());
+            return None;
+        }
+    return Some(tokens[index-1]);
 }
 /// Extracts the delimiter, if it is enclosed in single quotes
 /// `'some thing'` becomes `something`
-pub fn extract_delimiter(delimiter: String) -> String {
+pub fn extract_delimiter(delimiter: &str) -> &str {
     if delimiter.starts_with("'") {
         let tokens: Vec<&str> = delimiter.split("'").collect();
-        String::from(tokens[1])
+        tokens[1]
     } else {
         delimiter
     }
@@ -28,17 +29,17 @@ mod tests {
 
     #[test]
     fn extract_delimiter_tests() {
-        assert_eq!("  hi there ".to_string(), extract_delimiter("'  hi there '".to_string()));
-        assert_eq!("hi there ".to_string(), extract_delimiter("'hi there '".to_string()));
-        assert_eq!("hi there".to_string(), extract_delimiter("hi there".to_string()));
+        assert_eq!("  hi there ".to_string(), extract_delimiter("'  hi there '"));
+        assert_eq!("hi there ".to_string(), extract_delimiter("'hi there '"));
+        assert_eq!("hi there".to_string(), extract_delimiter("hi there"));
     }
     #[test]
     fn tokenize_tests() {
-        let input = "June 6 2020".to_string();
-        assert_eq!(Some("June".to_string()), tokenize(&input, &" ".into(), 1));
-        assert_eq!(Some("6".to_string()), tokenize(&input, &" ".into(), 2));
-        assert_eq!(Some("2020".to_string()), tokenize(&input, &" ".into(), 3));
-        assert_eq!(Some(input.clone()), tokenize(&input, &"covid".into(), 1));
-        assert_eq!(None, tokenize(&input, &"covid".into(), 2));
+        let input = "June 6 2020";
+        assert_eq!(Some("June"), tokenize(input, " ", 1));
+        assert_eq!(Some("6"), tokenize(input, " ", 2));
+        assert_eq!(Some("2020"), tokenize(input, " ", 3));
+        assert_eq!(Some(input), tokenize(input, "covid", 1));
+        assert_eq!(None, tokenize(&input, "covid", 2));
     }
 }
