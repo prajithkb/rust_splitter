@@ -18,7 +18,45 @@ mod tests {
     use std::process::{Command, Stdio};
 
     #[test]
-    fn run_splitter_integration_test() -> io::Result<()> {
+    fn run_splitter_integration_test_no_options() -> io::Result<()> {
+        {
+            println!("Building, running cargo ********");
+            let mut c = Command::new("/Users/kprajith/.cargo/bin/cargo")
+                .arg("build")
+                .stdin(Stdio::piped())
+                .stdout(Stdio::piped())
+                .spawn()?;
+            c.wait()?;
+            println!("Completed build, ran cargo ********");
+        }
+        let mut child = Command::new("target/debug/splitter")
+            .arg("' '")
+            .arg("3")
+            .stdin(Stdio::piped())
+            .stdout(Stdio::piped())
+            .spawn()?;
+        println!("Created child {:?}", child);
+        {
+            let child_stdin = child.stdin.as_mut().unwrap();
+            child_stdin.write_all(
+                b"This is a sample test data \n\
+                while I b try my best \n\
+                to identify c a better format\n\
+                ,but I d am not sure\n",
+            )?;
+            child_stdin.flush()?;
+        }
+        let o = child.wait_with_output()?;
+        let output: Vec<&str> = std::str::from_utf8(&o.stdout)
+            .unwrap()
+            .trim()
+            .split('\n')
+            .collect();
+        assert_eq!(vec!["a", "b", "c", "d"], output);
+        Ok(())
+    }
+
+    fn run_splitter_integration_test_with_options() -> io::Result<()> {
         {
             println!("Building, running cargo ********");
             let mut c = Command::new("/Users/kprajith/.cargo/bin/cargo")

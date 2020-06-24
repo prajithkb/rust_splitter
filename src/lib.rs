@@ -4,3 +4,4 @@
 pub mod parameter;
 pub mod processor;
 pub mod tokenizer;
+pub mod aggregator;
